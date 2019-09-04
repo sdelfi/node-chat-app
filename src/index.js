@@ -12,7 +12,7 @@ const Filter = require('bad-words');
 const filter = new Filter();
 filter.addWords('хер');
 
-const host = process.env.HOST || 'localhost';
+const host = process.env.HOST || '0.0.0.0';
 const port = process.env.PORT || 3000;
 // const io = require('socketio')(fastify.server);
 const publicDirectoryPath = path.join(__dirname, '../public');
