@@ -1,23 +1,21 @@
 "use strict";
 
-// const process = require('process');
 const { generateMessage } = require('./utils/messages');
 const users = require('./utils/users');
 const path = require('path');
 const http = require('http');
 const Fastify = require('fastify');
 const socketio = require('socket.io');
-// const socketioClient = require('socket.io-client');
 const Filter = require('bad-words');
 const filter = new Filter();
-filter.addWords('хер');
+
+// const socketioClient = require('socket.io-client');
+// const io = require('socketio')(fastify.server);
+// const server = http.createServer(fastify);
 
 const host = process.env.HOST || '0.0.0.0';
 const port = process.env.PORT || 3000;
-// const io = require('socketio')(fastify.server);
 const publicDirectoryPath = path.join(__dirname, '../public');
-// const server = http.createServer(fastify);
-
 
 const serverFactory = handler => {
     const server = http.createServer((req, res) => {
@@ -71,13 +69,19 @@ io.on('connection', socket => {
         const user = users.getUser(socket.id);
 
         if (user) {
+            console.log('message', message);
+            console.log('filter', filter.isProfane(message));
             if (filter.isProfane(message)) {
                 cbMessage = 'Bad, very bad';
+                console.log('before', message);
                 message = filter.clean(message);
+                console.log('after', message);
+                console.log('cbMessage', cbMessage);
+                callback(generateMessage('Bot', cbMessage));
             }
 
             io.to(user.room).emit('message', generateMessage(user.username, message));
-            callback(cbMessage);
+            callback();
         }
     });
 
@@ -100,17 +104,9 @@ io.on('connection', socket => {
     });
 });
 
-
-
 // let client = socketioClient.connect('http://' + host + ':' + port);
 // client.on('message', (message) => {
 //     console.log('server client message received', message);
-// });
-
-// fastify.get('/123', async (request, reply) => {
-//     reply.send({
-//         test: 'test123'
-//     });
 // });
 
 fastify.listen(port, host, (err, address) => {
@@ -120,10 +116,4 @@ fastify.listen(port, host, (err, address) => {
     }
 
     fastify.log.info(`server listening on ${address}`);
-    // console.log(`server listening on ${port}`);
 });
-    // .then((address) => console.log(`server listening on ${address}`))
-    // .catch(err => {
-    //     console.log('Error starting server:', err)
-    //     process.exit(1)
-    // })

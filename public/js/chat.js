@@ -49,7 +49,7 @@ window.onload = () => {
         socket.emit('sendMessage', message, err => {
             if (err) {
                 renderMessage(err, 'text-red');
-                // console.log('CB from server: ', message);
+                console.log('CB from server: ', err);
             }
 
             changeButtonState(false);
